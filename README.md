@@ -1,0 +1,1 @@
+"# Articogar-Stock-Manager" 
