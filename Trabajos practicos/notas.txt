@@ -1,0 +1,25 @@
+* Agregar un requiere esEscrutinioValido (indices > 0) es sobreespecificar?
+
+* Obtener senadores es dar el indice ordenado de los dos mas grandes (res=(i,j) <=> i=indiceMaximo(escrutinio) ^ j=indiceMaximo(sacarIndice(i, escrutinio)))
+requiere { hay al menos dos partidos con listas de cadidatos en una eleccion de senadores }
+
+* calcularDHont ~ sacar voto blanco y divisor de 1 a n_bancas incluido
+
+* obtenerDiputadosEnProvincia(Z cant_bancas, seq<<seq<Z>> dHont): 
+-> cocientes = aplanarMatriz(dHont) 
+-> i in [0, #partidos] : res[i] = #{j in dHont[i] ^ j > cocientes[cant_bancas] ^ j > umbral3p(dHont)}
+* require { hayAlMenos un partido que pasa el umbral }
+
+donde #partidos = |escrutinio|-1
+      umbral3p(matrid dHont) valida que 
+
+validarListasDiputadosEnProvincia(c_bancas:Z, listas:seq<seq<Z, Z>>)
+asegura: i in [0,|listas|] -> c_bancas = |listas[i]|
+asegura: i in [0,|listas|] -> estaIntercalada(listas[i])
+
+estaIntercalada {
+   V lista in listas:
+	todo i,j par en [0, |lista|-1] -> lista[j][1] = lista[i][1]
+        todo p,q impar en [1, |lista|-1] -> lista[p][1] = lista[q][1] 
+}
+

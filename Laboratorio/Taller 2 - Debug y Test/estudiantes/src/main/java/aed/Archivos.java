@@ -22,37 +22,39 @@ class Archivos {
     }
 
     void imprimirPiramide(PrintStream salida, int alto) {
-        
+        // Caso excepcional
         if (alto == 0){
             salida.print("");
             return;
         }
 
-        int longString = 2*alto-1;
+        int long_string = 2*alto-1;
 
+        // Guardamos linea a linea
         for(int row=0; row<alto; row++){
-
+            
+            // La idea es que cada linea tiene 2*row+1 puntos
+            // con (longString-n_puntos)/2 espacios entre punto(s)
             int n_puntos = (1+2*row);
-            int dif = longString - n_puntos;
+            int dif = long_string - n_puntos;
 
-            // Espacios al principio
+            // Agregamos los espacios al principio (' ')
             for (int k=0; k<dif/2; k++)
                 salida.print(' ');
             
-            // Estrellas
+            // Agregamos las estrellas (*)
             for (int n=0; n<n_puntos; n++)
                 salida.print('*');
             
-            // Espacios al principio
+            // Agregamos los espacios del final (' ')
             for (int k=0; k<dif/2; k++)
                 salida.print(' ');
             
-            // Cierro linea
+            // Salto de linea
             salida.println("");
         }
-
     }
-
+    
     char[] ubicarPuntos(char[] actual, int nPuntos, int longString){
         int dif = longString - nPuntos;
         for (int q=0; q<nPuntos; q++){
