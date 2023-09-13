@@ -1,4 +1,4 @@
-# Algoritmos y Estructuras de Datos - Segundo cuatrimestre 2023.
+# Algoritmos y Estructuras de Datos - Exactas UBA.
 
 🤌🤌 Material de la cursada de Algoritmos II, en Exactas UBA, el segundo cuatrimestre de 2023.
 
