@@ -1,38 +1,58 @@
 package aed;
 
+import java.util.ArrayList;
+
 class VectorDeInts implements SecuenciaDeInts {
-    private static final int CAPACIDAD_INICIAL = 1;
+    private static final int CAPACIDAD_INICIAL = 0;
+
+    private int[] vector;
+    private int size; 
 
     public VectorDeInts() {
-        throw new UnsupportedOperationException("No implementada aun");
+        vector = new int[CAPACIDAD_INICIAL];
+        size = CAPACIDAD_INICIAL; 
     }
 
-    public VectorDeInts(VectorDeInts vector) {
-        throw new UnsupportedOperationException("No implementada aun");
+    public VectorDeInts(VectorDeInts v){
+        VectorDeInts copia = v.copiar();
+        size = copia.size;
+        vector = copia.vector;
     }
 
     public int longitud() {
-        throw new UnsupportedOperationException("No implementada aun");
+        return size;
     }
 
     public void agregarAtras(int i) {
-        throw new UnsupportedOperationException("No implementada aun");
+        int[] nvec = new int[size+1];
+        for (int w=0; w<size; w++)
+            nvec[w] = vector[w];
+        nvec[size] = i;
+        vector = nvec;
+        size++;
     }
 
     public int obtener(int i) {
-        throw new UnsupportedOperationException("No implementada aun");
+        return vector[i];
     }
 
     public void quitarAtras() {
-        throw new UnsupportedOperationException("No implementada aun");
+        size--;
+        int[] nvec = new int[size];
+        for (int q=0; q<size; q++)
+            nvec[q] = vector[q];
+        vector = nvec;
     }
 
     public void modificarPosicion(int indice, int valor) {
-        throw new UnsupportedOperationException("No implementada aun");
+        vector[indice] = valor;
     }
 
     public VectorDeInts copiar() {
-        throw new UnsupportedOperationException("No implementada aun");
+        VectorDeInts copia = new VectorDeInts();
+        for(int j=0; j<size; j++)
+            copia.agregarAtras(vector[j]);
+        return copia;
     }
 
 }
