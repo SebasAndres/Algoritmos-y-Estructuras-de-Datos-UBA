@@ -3,20 +3,18 @@ package aed;
 import java.util.*;
 
 public class ListaEnlazada<T> implements Secuencia<T> {
-    // Completar atributos privados
 
     private Nodo primero;
     private int size;
 
     private class Nodo {
-       Nodo antecesor;
-       T valor;
-       Nodo sucesor;
+        T valor;
+        Nodo antecesor;
+        Nodo sucesor;
 
-       Nodo(T _valor){
-         this.valor = _valor;
-       }
-
+        Nodo(T _valor){
+            this.valor = _valor;
+        }
     }
 
     public ListaEnlazada() {
@@ -117,7 +115,7 @@ public class ListaEnlazada<T> implements Secuencia<T> {
     @Override
     public String toString() {
         Nodo actual = primero;
-        StringBuffer sbuff = new StringBuffer(null);
+        StringBuffer sbuff = new StringBuffer();
         sbuff.append("[");
         while (actual != null){
             sbuff.append(actual.valor.toString());
@@ -131,24 +129,39 @@ public class ListaEnlazada<T> implements Secuencia<T> {
 
     private class ListaIterador implements Iterador<T> {
 
-        private Nodo actual;
+        int indice;
+
+        ListaIterador() {
+            indice = 0;
+        }
 
         public boolean haySiguiente() { 
-            return actual.sucesor != null;
+            return indice < size;
         }
         
         public boolean hayAnterior() {  
-            return actual.antecesor != null;
+            return indice > 0;
         }
 
         public T siguiente() {
-            actual = actual.sucesor;            
-            return actual.valor;
+            // En realidad el testing pide que devuelva
+            // el elemento actual del indice y luego avance el indice
+            // al principio it.siguiente() -> devuelve el primer elemento
+            T res = null;
+            if (haySiguiente()){
+                res = obtener(indice);
+                indice++;
+            }
+            return res;
         }
 
         public T anterior() {
-            actual = actual.antecesor;
-            return actual.valor;
+            T res = null;
+            if (hayAnterior()){
+                indice--;
+                res = obtener(indice);
+            }
+            return res;
         }
     }
 

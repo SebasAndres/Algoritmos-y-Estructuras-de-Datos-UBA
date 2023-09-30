@@ -9,7 +9,6 @@ class ListaEnlazadaTests {
     @Test
     void nuevaListaEstaVacia() {
         ListaEnlazada<Integer> lista = new ListaEnlazada<>();
-
         assertEquals(0, lista.longitud());
     }
 
