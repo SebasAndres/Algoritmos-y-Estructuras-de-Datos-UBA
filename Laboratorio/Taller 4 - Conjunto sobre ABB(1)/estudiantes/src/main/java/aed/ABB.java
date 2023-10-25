@@ -4,16 +4,14 @@ import java.util.*;
 
 // Todos los tipos de datos "Comparables" tienen el método compareTo()
 // elem1.compareTo(elem2) devuelve un entero. Si es mayor a 0, entonces elem1 > elem2
-public class ABB<T extends Comparable<T>> implements Conjunto<T> {
-    // Agregar atributos privados del Conjunto
 
+public class ABB<T extends Comparable<T>> implements Conjunto<T> {
     Nodo raiz;
     int cardinal;
     T max;
     T min;
 
     private class Nodo {
-        // Agregar atributos privados del Nodo
         T valor;
         Nodo izquierda;
         Nodo derecha;
@@ -32,14 +30,16 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
             return der+izq;
         }
 
-        boolean tieneHijos(){
-            return cantidadHijos() > 0;
+        boolean esHoja(){
+            return cantidadHijos() == 0;
         }
     }
 
     public ABB() {
         this.raiz = null;
         this.cardinal = 0;
+        this.min = null;
+        this.max = null;
     }
 
     public int cardinal() {
@@ -54,48 +54,12 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
         return this.max;
     }
 
-    public void insertar(T elem){
-        Nodo ult_nodo = buscar_nodo(this.raiz, elem);
-        if (ult_nodo != null){
-            // ahora valido si ult_nodo es el padre o el nodo con el elem 
-            if (ult_nodo.valor.compareTo(elem) != 0){
-                // es el padre, por lo tanto creo el nodo
-                Nodo nuevo = new Nodo(elem);
-                nuevo.padre = ult_nodo;
-                // le agrego al padre el nodo
-                if (elem.compareTo(ult_nodo.valor) > 0){
-                    ult_nodo.derecha = nuevo;
-                }
-                else{
-                    ult_nodo.izquierda = nuevo;
-                }
-                // le sumo un elemento al conjunto
-                this.cardinal += 1;
-            }
-        }
-        else{
-            // primer nodo!
-            this.raiz = new Nodo(elem);
-            this.cardinal++;
-        }
-
-        // comparo minimo y maximo del ABB
-        if (this.min == null){
-            if (this.max == null){
-                this.min = elem;
-                this.max = elem;
-            }
-        }
-        else if (this.min.compareTo(elem) >= 0){
-            this.min = elem;
-        }
-        if (this.max.compareTo(elem) <= 0){
-            this.max = elem;
-        }
-
+    public boolean pertenece(T elem){
+        Nodo nodo = buscarNodo(this.raiz, elem);
+        return nodo != null && nodo.valor.compareTo(elem) == 0;
     }
 
-    public Nodo buscar_nodo(Nodo _raiz, T elem){
+    public Nodo buscarNodo(Nodo _raiz, T elem){
         /*
          * Recibe la raiz del arbol y un elemento como parametro.
          * Si esta: Devuelve el nodo que cumple nodo.valor == elem
@@ -107,7 +71,7 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
         }
         else if (
             _raiz.valor.compareTo(elem) == 0 // es el elemento
-            || !_raiz.tieneHijos() // no tiene hijos
+            || _raiz.esHoja() // no tiene hijos
             )
         {  return _raiz; }
         else{
@@ -116,69 +80,131 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
                 return _raiz;
             }
             else{
-                return buscar_nodo(next, elem);
+                return buscarNodo(next, elem);
             }
         }
     }
 
-
-    public boolean pertenece(T elem){
-        return busquedaRecursiva(this.raiz, elem);
+    public void insertar(T elem){
+        if (this.raiz == null){
+            this.raiz = new Nodo(elem);
+            this.min = elem;
+            this.max = elem;
+            this.cardinal++;
+        }
+        else {
+            Nodo nodo = buscarNodo(this.raiz, elem);
+            if (nodo.valor.compareTo(elem) != 0){
+                Nodo nuevoNodo = new Nodo(elem);
+                nuevoNodo.padre = nodo;
+                if (nodo.valor.compareTo(elem) > 0)
+                    nodo.izquierda = nuevoNodo;
+                else
+                    nodo.derecha = nuevoNodo;
+                this.cardinal++;
+            }
+            
+            if (this.min.compareTo(elem) > 0)
+                this.min = elem;
+                
+            else if (this.max.compareTo(elem) < 0)
+                this.max = elem;
+        }
     }
 
-    public boolean busquedaRecursiva(Nodo _raiz, T elem){
-        if (_raiz == null){
-            return false;
+    public Nodo buscarSucesorInmediato(Nodo nodo){
+        Nodo sucesor = nodo.derecha;
+        while (sucesor != null && sucesor.izquierda != null){
+            sucesor = sucesor.izquierda;
         }
-        else if (_raiz.valor.compareTo(elem) == 0){
-            return true;
-        }
-        else{
-            return busquedaRecursiva(
-                _raiz.valor.compareTo(elem) > 0 ? _raiz.izquierda : _raiz.derecha,
-                elem);
-        }
+        return sucesor;
     }
 
     public void eliminar(T elem){
-        Nodo node = buscar_nodo(this.raiz, elem);
-        if (node != null){     
-            int n_hijos = node.cantidadHijos();
-            if (n_hijos == 0){
-                node = null;
+        Nodo nodo = buscarNodo(raiz, elem);
+        if (nodo != null && nodo.valor.compareTo(elem) == 0){
+            // Caso 1: nodo hoja (no tiene hijos)
+            if (nodo.esHoja()){         
+                // caso general
+                if (nodo.padre != null){
+                    if (nodo.padre.valor.compareTo(elem) > 0)
+                        nodo.padre.izquierda = null;
+                    else
+                        nodo.padre.derecha = null;
+                }
+                // caso especial: la raíz       
+                else {
+                    this.raiz = null;
+                }                
+                cardinal--;
             }
-            else if (n_hijos == 1){
-                if (node.derecha != null)
-                    node = node.derecha;
-                else
-                    node = node.izquierda;
-            }   
+            // Caso 2: nodo con un hijo
+            else if (nodo.cantidadHijos() == 1){
+                // caso especial: el nodo es la raiz y tiene un hijo
+                if (nodo.padre == null){
+                    if (nodo.derecha != null){
+                        nodo.derecha.padre = null;
+                        this.raiz = nodo.derecha;
+                    }
+                    else {
+                        nodo.izquierda.padre = null;
+                        this.raiz = nodo.izquierda;
+                    }
+                }
+                // casos generales
+                else {
+                    if (nodo.derecha != null){
+                        nodo.derecha.padre = nodo.padre;
+                        if (nodo.padre.valor.compareTo(elem) > 0)
+                            nodo.padre.izquierda = nodo.derecha;
+                        else
+                            nodo.padre.derecha = nodo.derecha;
+                    }
+                    else {
+                        nodo.izquierda.padre = nodo.padre;
+                        if (nodo.padre.valor.compareTo(elem) > 0)
+                            nodo.padre.izquierda = nodo.izquierda;
+                        else
+                            nodo.padre.derecha = nodo.izquierda;
+                    }
+                }
+                cardinal--;
+            }    
+            // Caso 3
             else {
-                // 1. Fijo node.valor = ult_sucesor.valor
-                Nodo inmediato_sucesor = sucesorInmediato(node);
-                node.valor = inmediato_sucesor.valor;
-                // 2. Elimino ult_sucesor.valor del ABB
-                inmediato_sucesor.valor = null;
+                Nodo sucesor_inmediato = buscarSucesorInmediato(nodo);
+                T valor = sucesor_inmediato.valor;
+                eliminar(valor);
+                nodo.valor = valor;
             }
-            this.cardinal--;
+        }
+        else {
+            // Caso 0: no esta
         }
     }
 
-    Nodo sucesorInmediatoDER(Nodo node){
-        // Agarro el minimo del subarbol derecho de node
-        Nodo nPath = node.derecha;
-        while(nPath.izquierda != null){
-            nPath = nPath.izquierda;
+    public Nodo buscarSucesor(T elem){
+        Nodo path = this.raiz;
+        Nodo posibleSucesor = null;
+        while (path.valor.compareTo(elem) != 0){
+            if (path.derecha != null && path.valor.compareTo(elem) < 0){
+                path = path.derecha;                
+            }
+            else if (path.izquierda != null && path.valor.compareTo(elem) > 0){
+                posibleSucesor = path;
+                path = path.izquierda;
+            }
         }
-        return nPath;
-    }
-
-    Nodo sucesorInmediatoPADRE(Nodo node){
-        // Agarro el minimo sucesor recorriendo el padre
-        Nodo nPath = node;
-        while( nPath.padre != null && nPath.padre.valor.compareTo(nPath.valor) >=0 )
-        { nPath = nPath.padre; }
-        return nPath;
+        if (path.derecha != null){
+            Nodo snd_path = path.derecha;
+            while (snd_path.izquierda != null){
+                snd_path = snd_path.izquierda;
+            }
+            return snd_path;
+        }
+        else {
+            return posibleSucesor;
+        }
     }
 
     public String toString(){
@@ -186,8 +212,9 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
         Iterador<T> it = new ABB_Iterador(this.raiz, this.min);
         response.append("{");
         while (it.haySiguiente()){
-            response.append(it.siguiente());
-            if (it.haySiguiente())
+            T v = it.siguiente();
+            response.append(v);
+            if (v != max)
                 response.append(",");
         }
         response.append("}");
@@ -198,21 +225,17 @@ public class ABB<T extends Comparable<T>> implements Conjunto<T> {
         private Nodo _actual;
 
         ABB_Iterador(Nodo _raiz, T _min){
-            this._actual = buscar_nodo(_raiz, _min);
+            _actual = buscarNodo(_raiz, _min);
         }
 
         public boolean haySiguiente() {            
-            return _actual != max;
+            return _actual != null && _actual != max;
         }
     
         public T siguiente() {
-            Nodo minPadre = sucesorInmediatoPADRE(_actual);
-            Nodo minABB_der = sucesorInmediatoDER(_actual);
-            if (minABB_der != null){
-                if (vPadre.compareTo(minABB_der.valor) >= 0)
-                    return minABB_der.valor;
-            }
-            return minABB_der.valor;
+            T valor = _actual.valor;
+            _actual = buscarSucesor(valor);
+            return valor;
         }
     }
 
