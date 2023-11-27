@@ -9,6 +9,8 @@ from algorithms.bucketsort import bucketsort
 import random
 import time
 import pandas as pd
+import matplotlib.pyplot as plt
+from argparse import ArgumentParser
 
 def is_sorted(ls, desc=False):
     for i in range(len(ls) - 1):
@@ -32,36 +34,71 @@ def orderBestAlgorithms(values):
     # y por estabilidad como clave secundaria (si son estables mejor)
 
     # 1. Ordeno por estabilidad con bucketSort
-    fbucket = lambda x: 1 if x[3] == "SI" else 0  
+    fbucket = lambda x: 0 if x[3] == "SI" else 1  
     values_ = bucketsort(values, fbucket, 2)            # O(n + 2*n lgn)
-    
-    # 2. Ordeno por tiempo con quicksort        
-    values_ = quicksort(values_, lambda x: x[1])        # O(n lgn)
+
+    # 2. Ordeno por tiempo con mergesort        
+    values_ = mergesort(values_, lambda x: x[1])        # O(n lgn)
     return values_
 
-size = 100000
-random_ls = [random.randint(1, size) for _ in range(size)]
-exceptUnstable = False
-exceptN2 = True
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("-s", "--size", dest="size", default=100000, type=int, help="Size of the random list")
+    parser.add_argument("-u", "--unstable", dest="unstable", default=False, action="store_true", help="Exclude unstable algorithms")
+    parser.add_argument("-n", "--n2", dest="n2", default=False, action="store_true", help="Exclude O(n^2) algorithms")
+    parser.add_argument("-a", "--action", default="compare", help="Action to perform")
+    parser.add_argument("-l", "--algorithm", default='mergesort', help="Plot this algorithm time execution")
+    args = parser.parse_args()
 
-algorithms = [
-    ('counting sort', countingsort, "SI", False), 
-    ('radix sort', radixsort, "SI", False),
-    ('selection sort', selectionsort, "NO", True),
-    ('merge sort', mergesort, "SI", False),
-    ('quick sort', quicksort, "NO", False),
-    ('heap sort', heapsort, "NO", False),
-    ('insertion sort', insertionsort, "SI", True)
-]
-values = []
+    size = args.size
+    exceptUnstable = args.unstable
+    exceptN2 = args.n2
+    action = args.action
 
-for name, algorithm, stability, isN2 in algorithms:
-    if (exceptUnstable and stability == "NO") or (exceptN2 and isN2):
-        continue
-    state, dt = test_sort_algorithms(random_ls, algorithm)
-    values += [(name, dt, state, stability)]
+    if action == 'compare':
+        random_ls = [random.randint(1, size) for _ in range(size)]
+        algorithms = [
+            ('counting sort', countingsort, "SI", False), 
+            ('radix sort', radixsort, "SI", False),
+            ('selection sort', selectionsort, "NO", True),
+            ('merge sort', mergesort, "SI", False),
+            ('quick sort', quicksort, "NO", False),
+            ('heap sort', heapsort, "NO", False),
+            ('insertion sort', insertionsort, "SI", True)
+        ]
+        values = []
 
-sortedValues = orderBestAlgorithms(values)
-df = pd.DataFrame(sortedValues, columns=["Algoritmo", "Tiempo", "Estado", "Estable"])
-print(df)
+        for name, algorithm, stability, isN2 in algorithms:
+            if (exceptUnstable and stability == "NO") or (exceptN2 and isN2):
+                continue
+            state, dt = test_sort_algorithms(random_ls, algorithm)
+            values += [(name, dt, state, stability)]
 
+        sortedValues = orderBestAlgorithms(values)
+        df = pd.DataFrame(sortedValues, columns=["Algoritmo", "Tiempo", "Estado", "Estable"])
+        print(df)
+
+        print("-"*50)
+        print("Mencion especial al bucket sort!")
+        print("-"*50)
+
+    elif action == 'plot':
+        algorithms = args.algorithm.split(',')
+        colors = ['red', 'blue', 'green', 'yellow', 'black', 'orange']
+        start = 100
+        end = 5000
+        jump = 500
+        M = range(start, end, jump)
+        random_ls = [[random.randint(1, size) for _ in range(size)] for m in M] 
+        j = 0
+        for algorithm in algorithms:
+            algo_times = []
+            for ls in random_ls:
+                _, dt = test_sort_algorithms(ls, eval(algorithm))
+                algo_times.append(dt)
+            plt.scatter(M, algo_times, label=algorithm, color=colors[j])
+            j+=1
+        plt.legend(algorithms)
+        plt.xlabel("Tamaño de la lista")
+        plt.ylabel("Tiempo de ejecución")
+        plt.show()
